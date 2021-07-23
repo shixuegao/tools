@@ -1,0 +1,2 @@
+//初始化blob, 注意指定bitmap.txt的文件位置(其中bitmap.txt是16进制字符串文件(16MB), 可表示67108864位数字(1 ~ 67108864))
+insert into bitmap_test (topic , offset , bitmap , stamp ) values ("test", 16777216, load_file('C:\\Users\\shixuegao\\Desktop\\bitmap.txt'), 0)
