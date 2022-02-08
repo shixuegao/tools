@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="box" style="width: 450px; height: 400px;">
+    <div class="head">
+      <label class="title"><strong>统计信息</strong></label>
+      <a href="#" onclick="coapStatisticExit()" class="exit">x&nbsp;&nbsp;</a>
+    </div>
+    <div class="content">
+      <form>
+        <div>
+          <label style="width: 150px;"><strong>任务类型:</strong></label>
+          <input type="text" value="COAP" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>任务名称:</strong></label>
+          <input id="cst_name" type="text" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>总包数:</strong></label>
+          <input id="cst_total" type="text" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>回包平均延迟(毫秒):</strong></label>
+          <input id="cst_delay" type="text" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>收发超时包数:</strong></label>
+          <input id="cst_timeout" type="text" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>丢包数:</strong></label>
+          <input id="cst_lost" type="text" disabled="disabled">
+        </div>
+      </form>
+      <div class="foot">
+        <hr/>
+        <button type="button" onclick="coapStatisticExit()">取消</button>
+      </div>
+  </div>
+</body>
+</html>

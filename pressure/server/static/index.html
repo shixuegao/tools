@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf8">
+  <link rel="stylesheet" type="text/css" href="css/index.css">
+  <link rel="stylesheet" type="text/css" href="css/box.css">
+  <link rel="stylesheet" type="text/css" href="css/tools/dropdown.css">
+  <script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="js/global.js"></script>
+  <script type="text/javascript" src="js/load.js"></script>
+</head>
+<body style="font-family: 'Microsoft YaHei';">
+  <div class="header">
+    <img src="image/Dashboard.ico" width="45px" height="45px" style="vertical-align: top;">
+    <label>
+      <strong>压力测试工具</strong>
+    </label>
+  </div>
+  <div class="content">
+    <div class="search">
+      <form>
+        <div>
+          <label><strong>任务类型:</strong></label>
+          <select id="search_type">
+            <option value="COAP">COAP</option>
+          </select>
+        </div>
+        <div>
+          <label><strong>任务名称:</strong></label>
+          <input id="search_name" type="text" placeholder="请输入任务名称..." style="width: 180px;">
+        </div>
+        <div style="float: right;">
+          <button type="button" style="height: 26px; text-align: center;" onclick="search()">查询</button>
+        </div>
+      </form>
+    </div>
+    <div class="operation">
+      <div class="dropdown" style="height: 50px;">
+        <button class="dropbtn">添加任务</button>
+        <div class="dropdown-content">
+          <a href="#" onclick='addTask("coap")'>COAP</a>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>类型</th>
+            <th>名称</th>
+            <th>本地IP</th>
+            <th>测试服务IP</th>
+            <th>测试服务端口</th>
+            <th>状态</th>
+            <th>起始端口</th>
+            <th>端口数量</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="table_body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="footer">Copyright@2021 By Shixuegao</div>
+  <!--遮罩层-->
+  <div class="shadow"></div>
+  <div id="coap_add" style="display: none;"></div>
+  <div id="coap_set" style="display: none;"></div>
+  <div id="coap_statistic" style="display: none;"></div>
+</body>
+<script>
+  var uri = globalUri()
+  var token = getToken()
+  //加载Page
+  loadPage("coap_add", pageCoapAdd)
+  loadPage("coap_set", pageCoapSet)
+  loadPage("coap_statistic", pageCoapStatistic)
+  function showPage(id) {
+    $(".shadow").show()
+    $("#" + id).show()
+    console.info(document.getElementById('coap_add'))
+  }
+  function hidePage(id) {
+    $(".shadow").hide()
+    $("#" + id).hide()
+  }
+  //内嵌的按钮
+  function innerButton(type, name, state) {
+    type = type.toLowerCase().trim()
+    name = name.trim()
+    let td = ''
+    if (state == "Running") {
+      td = '<td style="width: 300px">'
+    } else {
+      td = '<td style="width: 200px">'
+    }
+    if (state != "Running") {
+      td += '<button type="button" class="tableLink" onclick=\'start("' + type + '","' + name + '")\'>启动</button>'
+    }
+    td += '<button type="button" class="tableLink" onclick=\'stop("' + type + '","' + name + '")\'>关闭</button>'
+    if (state == "Running") {
+      td += '<button type="button" class="tableLink" onclick=\'download("' + type + '","' + name + '")\'>设备编号</button>'
+    }
+    td += '<button type="button" class="tableLink" onclick=\'setParams("' + type + '","' + name + '")\'>设置</button>'
+    if (state == "Running") {
+      td += '<button type="button" class="tableLink" onclick=\'getStatistic("' + type + '","' + name + '")\'>统计信息</button>'
+    }
+    return td += "</td>"
+  }
+  //失败处理
+  function handleFailed(code, message) {
+    if (code == 2) {
+      window.location.href = uri + "/static/login.html"
+    } else {
+      alert(message)
+    }
+  }
+  //列表替换数据
+  function replaceTaskData(data) {
+    let tr = ""
+    for (let i=0; i<data.length; i++) {      
+      let d = data[i]
+      tr += "<tr>"
+      tr += "<td>" + (i + 1) + "</td>"
+      tr += "<td>" + d.type.toUpperCase() + "</td>"
+      tr += "<td>" + d.name + "</td>"
+      tr += "<td>" + d.localIP + "</td>"
+      tr += "<td>" + d.ip + "</td>"
+      tr += "<td>" + d.port + "</td>"
+      tr += "<td>" + d.state + "</td>"
+      tr += "<td>" + d.startPort + "</td>"
+      tr += "<td>" + d.portCount + "</td>"
+      tr += innerButton(d.type, d.name, d.state)
+      tr += "</tr>"
+    }
+    let tableBody = $("#table_body")
+    tableBody.empty()
+    tableBody.append(tr)
+  }
+  //查询任务
+  function search() {
+    let type = $("#search_type").val().toLowerCase()
+    let name = $("#search_name").val()
+    let url = uri + "/task/show?type=" + type + "&name=" + name
+    $.ajax({
+      method: "GET",
+      url: url,
+      headers: {
+        Accept: 'application/json; charset="utf-8"',
+        Authorization: token,
+      }
+    }).done(function(data) {
+      if (data.code == 0) {
+        replaceTaskData(data.data)
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    })
+  }
+  //启动任务
+  function start(type, name) {
+    let url = uri + "/task/operation?type=" + type + "&name=" + name + "&order=" + "start"
+    $.ajax({
+      method: "PUT",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      }
+    }).done(function(data) {
+      if (data.code == 0) {
+        alert("启动任务成功")
+        search()
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    })
+  }
+  //关闭(移除)任务
+  function stop(type, name) {
+    let r = confirm("确定要关闭任务" + name + "吗?")
+    if (!r) {
+      return;
+    }
+    let url = uri + "/task/operation?type=" + type + "&name=" + name + "&order=" + "close"
+    $.ajax({
+      method: "PUT",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      }
+    }).done(function(data) {
+      if (data.code == 0) {
+        alert("关闭任务成功")
+        search()
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    }) 
+  }
+  //下载设备编号
+  function download(type, name) {
+    let url = uri + "/task/show/numbers?type=" + type + "&name=" + name    
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);//get请求，请求地址，是否异步
+    xhr.responseType = "blob";  // 返回类型blob
+    xhr.setRequestHeader("Authorization", token)
+    xhr.onload = function () {// 请求完成处理函数
+      if (this.status === 200) {
+        let blob = this.response;// 获取返回值
+        let a = document.createElement('a');
+        a.download = dateFormat('YYYYmmddHHMMSS', new Date()) + '.xlsx';
+        a.href=window.URL.createObjectURL(blob);
+        a.click();
+      }
+    };
+    // 发送ajax请求
+    xhr.send();
+  }
+  //添加任务
+  function addTask(type) {
+    if (type == "coap") {
+      showPage("coap_add")
+    }
+  }
+  //参数设置
+  function setParams(type, name) {
+    if (type.toLowerCase() == "coap") {
+      getCoapParams(name)
+    }
+  }
+  //COAP
+  function coapAddExit() {
+    hidePage("coap_add")
+  }
+  function coapSetExit() {
+    hidePage("coap_set")
+  }
+  function coapStatisticExit() {
+    hidePage("coap_statistic")
+  }
+  function coapAddSelected() {
+    let val = $("#ca_selection").val()
+    if (val == "portCount") {
+      $("#ca_port_count").show()
+      $("#ca_file").hide()
+    } else if (val == "file") {
+      $("#ca_port_count").hide()
+      $("#ca_file").show()
+    }
+  }
+  //添加(基于端口数量)
+  function coapAddOnCount(type, name, localIP, ip, port, startPort, portCount) {
+    let url = uri + "/task/add?type=" + type + "&name=" + name + "&localIP=" + localIP + "&ip=" + ip + "&port=" + port + "&startPort=" + startPort + "&portCount=" + portCount
+    $.ajax({
+      method: "POST",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      }
+    }).done(function (data) {
+      if (data.code == 0) {
+        alert("添加任务成功")
+        coapAddExit()
+        search()
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    })
+  }
+  //添加(基于文件)
+  function coapAddOnFile(type, name, localIP, ip, port, startPort) {
+    let file = $("#ca_file").val()
+    if (file == "") {
+      alert("请选择文件")
+      return
+    }
+    //读取文件
+    var files = $('#ca_file').prop('files');
+    if (files.length == 0) {
+      alert("请选择文件")
+    } else {
+      var upFile = files[0]
+      var form = new FormData();
+      form.append("file", upFile);
+      let url = uri + "/task/add/file?type=" + type + "&name=" + name + "&localIP=" + localIP + "&ip=" + ip + "&port=" + port + "&startPort=" + startPort
+      $.ajax({
+        method: "POST",
+        url: url,
+        headers: {
+          'Accept': 'application/json; charset="utf-8"',
+          'Authorization': token,  
+        },
+        contentType: "multipart/form-data",
+        async: false, //异步
+        processData: false, //很重要，告诉jquery不要对form进行处理
+        contentType: false, //很重要，指定为false才能形成正确的Content-Type
+        data: form,
+      }).done(function(data) {
+        if (data.code == 0) {
+          alert("添加任务成功")
+          coapAddExit()
+          search()
+        } else {
+          handleFailed(data.code, data.message)
+        }
+      })
+    }
+  }
+  //处理添加
+  function coapAddConfirm() {
+    let type = "coap"
+    let name = $("#ca_name").val()
+    let localIP = $("#ca_local_ip").val()
+    let ip = $("#ca_ip").val()
+    let port = $("#ca_port").val()
+    let startPort = $("#ca_start_port").val()
+    let selection = $("#ca_selection").val()
+    if (name == "") {
+      alert("名称不能为空")
+      return
+    }
+    if (localIP == "") {
+      alert("本地IP不能为空")
+      return
+    }
+    if (!legalIp(localIP)) {
+      alert("非法的本地IP")
+      return
+    }
+    if (ip == "") {
+      alert("测试服务IP不能为空")
+      return
+    }
+    if (!legalIp(ip)) {
+      alert("非法的测试服务IP")
+      return
+    }
+    if (port == "") {
+      alert("请输入测试服务端口")
+      return
+    }
+    port = parseInt(port)
+    if (port < 1000 || port > 65535) {
+      alert("测试服务端口不正确")
+      return
+    }
+    if (startPort == "") {
+      alert("请输入起始端口")
+      return
+    }
+    startPort = parseInt(startPort)
+    if (startPort < 1000 || startPort > 65535) {
+      alert("起始端口不正确")
+      return
+    }
+    if (selection == "portCount") {
+      let portCount = $("#ca_port_count").val()
+      if (portCount == "") {
+        alert("请输入端口数量")
+        return
+      }
+      portCount = parseInt(portCount)
+      if (portCount < 10 || portCount > 1000) {
+        alert("端口数量不正确(必须大于等于10小于等于1000)")
+        return
+      }
+      coapAddOnCount(type, name, localIP, ip, port, startPort, portCount)
+    } else {
+      coapAddOnFile(type, name, localIP, ip, port, startPort)
+    }
+  }
+  //获取Coap参数
+  function getCoapParams(name) {
+    let url = uri + "/task/show/params?type=coap" + "&name=" + name
+    $.ajax({
+      method: "GET",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      }
+    }).done(function(data) {
+      if (data.code == 0) {
+        let params = data.data
+        $("#cs_name").val(name)
+        $("#cs_heartbeat").val(params.Heartbeat)
+        $("#cs_devstate").val(params.DevState)
+        $("#cs_eventinto").val(params.EventInfo)
+        $("#cs_timeout").val(params.Timeout)
+        $("#cs_lost").val(params.Lost)
+        showPage("coap_set")
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    }) 
+  }
+  //设置Coap参数
+  function coapSetConfirm() {
+    let name = $("#cs_name").val()
+    let heartbeat = parseInt($("#cs_heartbeat").val())
+    let devstate = parseInt($("#cs_devstate").val())
+    let eventinfo = parseInt($("#cs_eventinto").val())
+    let timeout = parseInt($("#cs_timeout").val())
+    let lost = parseInt($("#cs_lost").val())
+    if (heartbeat <= 0) {
+      alert("心跳周期非法")
+      return
+    }
+    if (devstate <= 0) {
+      alert("测量值上报周期非法")
+      return
+    }
+    if (eventinfo <= 0) {
+      alert("事件上报周期非法")
+      return
+    }
+    if (timeout <= 0) {
+      alert("超时阈值非法")
+      return
+    }
+    if (lost <= 0) {
+      alert("丢包阈值非法")
+      return
+    }
+    if (timeout > lost) {
+      alert("超时阈值不能大于丢包阈值")
+      return
+    }
+    let params = {
+      Type: "coap",
+      Name: name,
+      Data: {
+        Heartbeat: heartbeat,
+        DevState: devstate,
+        EventInfo: eventinfo,
+        Timeout: timeout,
+        Lost: lost,
+      }
+    }
+    let url = uri + "/task/params"
+    $.ajax({
+      method: "PUT",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      },
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify(params),
+    }).done(function(data) {
+      if (data.code == 0) {
+        alert("操作成功")
+        coapSetExit()
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    })
+  }
+  /*查看统计信息*/
+  function getStatistic(type, name) {
+    let url = uri + "/task/show/statistic?type=" + type + "&name=" + name
+    $.ajax({
+      method: "GET",
+      url: url,
+      headers: {
+        Accept: "application/json; charset='utf-8'",
+        Authorization: token,
+      }
+    }).done(function(data) {
+      if (data.code == 0) {
+        let sta = data.data
+        if (type.toLowerCase() == "coap") {
+          showPage("coap_statistic")
+          $("#cst_name").val(name)
+          $("#cst_total").val(sta.Total)
+          $("#cst_delay").val(sta.Delay)
+          $("#cst_timeout").val(sta.Timeout)
+          $("#cst_lost").val(sta.Lost)
+        }
+      } else {
+        handleFailed(data.code, data.message)
+      }
+    })
+  }
+  /*函数执行*/
+  search();
+</script>
+</html>

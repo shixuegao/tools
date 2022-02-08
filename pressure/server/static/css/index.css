@@ -1,0 +1,124 @@
+/*Header*/
+.header {
+  margin: 0px;
+  width: 100%;
+  height: 50px;
+  background-color: white;
+}
+.header label {
+  padding: 1px;
+  font-size: 35px;
+  font-style: italic;
+}
+/*Content*/
+.content {
+  margin-top: 5px;
+  width: 100%;
+  background-color: white;
+}
+.content .search {
+  height: 60px;
+  margin-bottom: 5px;
+  background-color: #8fb0ee;
+}
+.content .search form div {
+  margin-top: 20px;
+  height: 50px;
+  display: inline-block;
+}
+.content .search form div > * {
+  font-size: 16px;
+  height: 24px;
+  width: 80px;
+  text-align: left;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+/*Operation*/
+.operation {
+  height: 40px;
+  /* padding-top: 15px; */
+  margin-bottom: 10px;
+}
+.operation button {
+  margin-top: 10px;
+  width: 120px;
+  height: 26px;
+  text-align: center;
+  font-size: 16px;
+}
+/*Table*/
+.table {
+  min-height: 120px;
+}
+.table table {
+  border-collapse: collapse;
+}
+/*Footer*/
+.footer {
+  margin-top: 5px;
+  width: 100%;
+  height: 30px;
+  background-color: white;
+  text-align: center;
+}
+/*Table*/
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse; /*边框合并*/
+  width: 100%;
+}
+
+table td, table th {
+  text-align: center;
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even){ /*奇数行数据背景色*/
+  background-color: #f2f2f2;
+}
+
+table tr:hover {
+  background-color: #ddd;
+}
+
+table th {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background-color: #6594eb;
+  color: white;
+}
+.shadow{
+  width:100%;
+  height:100%;
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:998;
+  background-color:#000;
+  opacity:0.6;
+  display:none;
+}
+
+/*表格按钮*/
+.tableLink {
+  margin-left: 5px;
+}
+
+/*Dropdown*/
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}

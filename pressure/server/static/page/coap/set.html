@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="box" style="width: 470px; height: 430px;">
+    <div class="head">
+      <label class="title"><strong>参数设置</strong></label>
+      <a href="#" onclick="coapSetExit()" class="exit">x&nbsp;&nbsp;</a>
+    </div>
+    <div class="content">
+      <form>
+        <div>
+          <label style="width: 150px;"><strong>任务类型:</strong></label>
+          <input type="text" value="COAP" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>任务名称:</strong></label>
+          <input id="cs_name" type="text" disabled="disabled">
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>心跳周期(秒):</strong></label>
+          <input id="cs_heartbeat"  placeholder="请输入心跳周期..." value="0" maxlength="3" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>测量值上报周期(秒):</strong></label>
+          <input id="cs_devstate" placeholder="请输入上报周期..." value="0" maxlength="3" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>事件上报周期(秒):</strong></label>
+          <input id="cs_eventinto" placeholder="请输入上报周期..." value="0" maxlength="3" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>超时阈值(毫秒):</strong></label>
+          <input id="cs_timeout" placeholder="请输入超时阈值..." value="0" maxlength="3" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <label style="width: 150px;"><strong>丢包阈值(毫秒):</strong></label>
+          <input id="cs_lost" placeholder="请输入丢包阈值..." value="0" maxlength="4" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+      </form>
+      <div class="foot">
+        <hr/>
+        <button type="button" onclick="coapSetConfirm()">确定</button>
+        <button type="button" onclick="coapSetExit()">取消</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

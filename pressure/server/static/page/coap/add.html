@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="box" style="width: 400px; height: 440px;">
+    <div class="head">
+      <label class="title"><strong>添加COAP任务</strong></label>
+      <a href="#" onclick="coapAddExit()" class="exit">x&nbsp;&nbsp;</a>
+    </div>
+    <div class="content">
+      <form>
+        <div>
+          <label><strong>任务类型:</strong></label>
+          <input type="text" value="COAP" disabled="disabled">
+        </div>
+        <div>
+          <label><strong>任务名称:</strong></label>
+          <input id="ca_name" type="text" placeholder="请输入任务名称..." maxlength="30">
+        </div>
+        <div>
+          <label><strong>本地IP:</strong></label>
+          <input id="ca_local_ip" type="text" placeholder="请输入本地IP..." maxlength="15">
+        </div>
+        <div>
+          <label><strong>测试服务IP:</strong></label>
+          <input id="ca_ip" type="text" placeholder="请输入测试服务IP..." maxlength="15">
+        </div>
+        <div>
+          <label><strong>测试服务端口:</strong></label>
+          <input id="ca_port"  placeholder="请输入测试服务端口..." value="5683" maxlength="5" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <label><strong>起始端口:</strong></label>
+          <input id="ca_start_port" placeholder="请输入起始端口..." value="10000" maxlength="5" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+        </div>
+        <div>
+          <select  
+          id="ca_selection"
+          style="display: inline-block; width: 120px; text-align: left; height: 20.8px;" 
+          onchange="coapAddSelected()">
+            <option value="portCount">基于端口数量</option>
+            <option value="file">基于文件</option>
+          </select>
+          <input id="ca_port_count" type="number" placeholder="请输入端口数量..." value="10" minlength="2" maxlength="3" onkeyup='this.value=this.value.replace(/[^\d]/g,"")'>
+          <input id="ca_file" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display: none;">
+        </div>
+      </form>
+      <div class="foot">
+        <hr/>
+        <button type="button" onclick="coapAddConfirm()">确定</button>
+        <button type="button" onclick="coapAddExit()">取消</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
